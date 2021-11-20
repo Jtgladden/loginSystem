@@ -1,5 +1,10 @@
 #include <iostream>
 #include <fstream>
+#include <string.h>
+#include <limits>
+#include <cstring>
+#include <stdlib.h>
+#include <sstream>
 using namespace std;
 
 bool signup(string usr, string pass) {
@@ -37,20 +42,87 @@ bool login(string usr, string pass) {
 	}
 }
 
+fstream& GotoLine(fstream& file, unsigned int num)
+{
+    file.seekg(ios::beg);
+    for(int i = 0; i < num -1; ++i){
+        file.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    return file;
+}
+
+
+void encrypt(char passArray[30],const char* file, int linepick)
+{
+    ifstream fin(file);
+    ofstream fout;
+    fout.open("users//temp.txt", ios::out);
+
+    char ch;
+    int line = 1;
+    while(fin.get(ch)){
+        if(ch == '\n')
+            line++;
+        if(line != linepick)
+            fout << ch;
+    }
+    fout.close();
+    fin.close();
+    remove(file);
+    rename("users//temp.txt" ,file);
+
+    for(int i = 0; (i < 30 && passArray[i] != '/0'); i++)
+        passArray[i] = passArray [i] + 2;
+    cout <<"\n Encrypted string: " << passArray << endl;
+}
+
+
+void arrayConvert(string usr, string pass)
+{
+    string linepass;
+    string line, text;
+    ostringstream sstream;
+    fstream file("users//" + usr + ".txt");
+
+    GotoLine(file , 2);
+    file >> linepass;
+    cin.get();
+
+    int len = linepass.size() + 1;
+    char passArray[len];
+
+    sstream << file.rdbuf();
+    const string str(sstream.str());
+    const char* ptr = str.c_str();
+
+
+
+    if(file.is_open()){
+        for (int i = 0; i < linepass.length(); i++){
+            passArray[i] = linepass[i];
+        }
+        passArray[len - 1] = '\0';
+        file.close();
+        encrypt(passArray,ptr, 2);
+    }
+    else
+        cout << "can't open file";
+}
+
+
 int main () {
 	string usr, pass;
 	int choice;
-
+    while (true) {
 	cout << "Options: " <<endl;
 	cout << "1. sign up" << endl;
 	cout << "2. login" << endl;
 	cout << "3. Exit" << endl;
-	while (true) {
-		cout << endl << "Choice: ";
+
 		cin >> choice;
 		switch(choice) {
 			case 1:
-				
+
 				cout << "Enter a username: ";
 				cin >> usr;
 				cout << "Enter a password: ";
@@ -76,6 +148,7 @@ int main () {
 				}
 				break;
 			case 3:
+			    arrayConvert(usr, pass);
 				exit(0);
 				break;
 			default:
