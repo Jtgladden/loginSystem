@@ -2,39 +2,40 @@
 #include <fstream>
 using namespace std;
 
+
+int hashFunc(string key) {
+	int ret = 0;
+	for (int i = 0; i < key.size(); i++) {
+		ret += (int)key[i];
+	}
+	return ret;
+}
+
 bool signup(string usr, string pass) {
 	string filename = "users//" + usr + ".txt";
 	ofstream file;
 	file.open(filename);
-	if (file.is_open()) {
-		file << usr << endl;
-		file << pass << endl;
-		file.close();
+	if (file.is_open()) {	
+		file << hashFunc(pass) << endl;
 		return true;
-	} else {
-		file.close();
-		return false;
-	}
+	} 
+	return false;
 }
 
-bool login(string usr, string pass) {
-	string filename = "users//" + usr + ".txt";
-	string username, password;
-	ifstream file (filename);
-	if (file.is_open()){
-		getline(file, username);
-		getline(file, password);
-		if (usr == username && pass == password) {
-			file.close();
-			return true;
-		} else {
-			file.close();
-			return false;
-		}
-	} else {
-		file.close();
+bool login(string usr, string pass){
+	string filename = "users//" + usr + ".txt";	
+	ifstream file(filename);
+	if(!file.is_open()) {
+		cout << "Cannot Open File" << endl;
 		return false;
 	}
+	int password_hash = -1;
+	file >> password_hash;
+	if (file.fail()) {
+		cout << "Cannot read data" << endl;
+		return false;
+	}
+	return (hashFunc(pass) == password_hash);	
 }
 
 int main () {
@@ -50,7 +51,7 @@ int main () {
 		cin >> choice;
 		switch(choice) {
 			case 1:
-				
+
 				cout << "Enter a username: ";
 				cin >> usr;
 				cout << "Enter a password: ";
@@ -63,9 +64,12 @@ int main () {
 				break;
 			case 2:
 				while (true) {
-					cout << "Enter your username: ";
+					cout << "Enter your username(-1 to exit): ";
 					cin >> usr;
-					cout << "Enter your password: ";
+					if (usr == "-1") {
+						break;
+					}
+					cout << "Enter your password:";
 					cin >> pass;
 					if (login(usr, pass)) {
 						cout << "Login Successful!!" <<endl;
