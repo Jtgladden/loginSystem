@@ -52,28 +52,26 @@ fstream& GotoLine(fstream& file, unsigned int num)
 }
 
 
-void encrypt(char passArray[30],const char* file, int linepick)
+void encrypt(char passArray[30], string usr)
 {
-    ifstream fin(file);
-    ofstream fout;
-    fout.open("users//temp.txt", ios::out);
+    cout << "this is a test cout" <<endl;
+    string file = "users//" + usr + ".txt";
+    ofstream ofs;
+    ofs.open(file, ofstream::out | ofstream::trunc);
 
-    char ch;
-    int line = 1;
-    while(fin.get(ch)){
-        if(ch == '\n')
-            line++;
-        if(line != linepick)
-            fout << ch;
-    }
-    fout.close();
-    fin.close();
-    remove(file);
-    rename("users//temp.txt" ,file);
-
+    if(ofs.is_open()){
     for(int i = 0; (i < 30 && passArray[i] != '/0'); i++)
         passArray[i] = passArray [i] + 2;
     cout <<"\n Encrypted string: " << passArray << endl;
+    ofs << usr << endl;
+    ofs << passArray << endl;
+    ofs.close();
+    }
+    else
+        cout << "hello there, file is not open" << endl;
+
+
+
 }
 
 
@@ -91,19 +89,13 @@ void arrayConvert(string usr, string pass)
     int len = linepass.size() + 1;
     char passArray[len];
 
-    sstream << file.rdbuf();
-    const string str(sstream.str());
-    const char* ptr = str.c_str();
-
-
-
     if(file.is_open()){
         for (int i = 0; i < linepass.length(); i++){
             passArray[i] = linepass[i];
         }
         passArray[len - 1] = '\0';
         file.close();
-        encrypt(passArray,ptr, 2);
+        encrypt(passArray,usr);
     }
     else
         cout << "can't open file";
