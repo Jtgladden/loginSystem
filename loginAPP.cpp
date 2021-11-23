@@ -3,10 +3,10 @@
 using namespace std;
 
 
-int hashFunc(string key) {
-	int ret = 0;
+string hashFunc(string key) {
+	string ret = "";
 	for (int i = 0; i < key.size(); i++) {
-		ret += (int)key[i];
+		ret += to_string((int)key[i] % 16);
 	}
 	return ret;
 }
@@ -29,7 +29,7 @@ bool login(string usr, string pass){
 		cout << "Cannot Open File" << endl;
 		return false;
 	}
-	int password_hash = -1;
+	string password_hash = "";
 	file >> password_hash;
 	if (file.fail()) {
 		cout << "Cannot read data" << endl;
